@@ -141,7 +141,9 @@
 
     .card_grid {
         @apply grid md:grid-cols-3 sm:grid-cols-2 gap-14;
-    }
+        width: 100%;
+      }
+      
 
     .card_grid-sm {
         @apply grid sm:grid-cols-2 gap-5;

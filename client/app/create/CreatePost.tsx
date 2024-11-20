@@ -1,43 +1,48 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { Text, Video } from "lucide-react";
+import TipTapEditor from "../components/TipTap";
+import { Text, Video } from "lucide-react"; // Adjust imports for your icons
+import Image from "next/image"; // For handling image previews
+import { useSession } from "next-auth/react";
 
 const CreatePost = () => {
+  const {data:session} = useSession();
   const [activeTab, setActiveTab] = useState("post");
-  const [imageurl, setImageUrl] = useState<null | string>(null);
+  const [imageurl, setImageUrl] = useState<string | null>(null);
+  const [content, setContent] = useState(""); // State to store the content from TipTap editor
 
-  const form = useForm({
-    defaultValues: {
-      title: "",
-      content: "",
-      tags: "",
-      imageurl: "",
-    },
-  });
+  const { register, handleSubmit, formState: { isSubmitting }, setValue } = useForm();
 
-  const { handleSubmit, register, formState: { isSubmitting } } = form;
+  const onSubmit = async (values: any) => {
+    const postData = {
+      ...values,
+      user_id: session?.user?.name,
+      imageurl: imageurl || "",
+      content: JSON.stringify(content), 
+    };
 
-  const onSubmit = async (values: { title: string; content: string; tags: string; imageurl: string }) => {
     try {
-      const postData = {
-        ...values,
-        imageurl: imageurl || "",
-      };
-
-      const response = await fetch("http://localhost:6969/users/create_post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postData),
+      const response = await fetch('http://localhost:6969/users/create_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:JSON.stringify(postData),
       });
 
-      if (!response.ok) throw new Error("Failed to submit post");
+      if (!response.ok) throw new Error('Failed to submit post');
 
       const result = await response.json();
-      console.log("Post created:", result);
+      console.log('Post created:', result);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error('Error submitting form:', error);
     }
+  };
+
+  // Handle TipTapEditor onChange
+  const handleEditorChange = (newContent: string) => {
+    setContent(newContent); // Update content state with the editor content
+    setValue("content", newContent); 
+    console.log(newContent)
   };
 
   return (
@@ -46,81 +51,67 @@ const CreatePost = () => {
         <div className="grid w-full grid-cols-2 mb-4 border-b">
           <button
             className={`flex items-center justify-center text-lg font-semibold py-2 ${
-              activeTab === "post"
-                ? "border-b-2 border-black text-black"
-                : "text-gray-500"
+              activeTab === 'post'
+                ? 'border-b-2 border-black text-black'
+                : 'text-gray-500'
             }`}
-            onClick={() => setActiveTab("post")}
+            onClick={() => setActiveTab('post')}
           >
             <Text className="h-4 w-4 mr-2" /> Post
           </button>
           <button
             className={`flex items-center justify-center text-lg font-semibold py-2 ${
-              activeTab === "image"
-                ? "border-b-2 border-black text-black"
-                : "text-gray-500"
+              activeTab === 'image'
+                ? 'border-b-2 border-black text-black'
+                : 'text-gray-500'
             }`}
-            onClick={() => setActiveTab("image")}
+            onClick={() => setActiveTab('image')}
           >
             <Video className="h-4 w-4 mr-2" /> Image & Video
           </button>
         </div>
 
-        {activeTab === "post" && (
+        {activeTab === 'post' && (
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 p-4"
             noValidate
           >
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Title
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Title</label>
               <input
-                {...register("title")}
+                {...register('title')}
                 placeholder="Enter the title"
                 className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-opacity-50 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Tags
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Tags</label>
               <input
-                {...register("tags")}
+                {...register('tags')}
                 placeholder="Example tags:--> typescript, nodejs"
                 className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-opacity-50 focus:ring-blue-500"
               />
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Content
-              </label>
-              <textarea
-                {...register("content")}
-                rows={4}
-                placeholder="Enter the content"
-                className="w-full p-2 border rounded-md focus:ring focus:ring-opacity-50 focus:ring-blue-500"
-              />
-            </div>
+
+            {/* TipTap Editor */}
+            <TipTapEditor onChange={handleEditorChange} />
 
             <button
               type="submit"
               disabled={isSubmitting}
               className="w-full py-3 bg-black hover:bg-black/80 text-white font-semibold rounded-lg disabled:bg-gray-400"
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
           </form>
         )}
 
-        {activeTab === "image" && (
+        {activeTab === 'image' && (
           <div className="text-center p-4">
             <p className="text-gray-500">Upload Image or Video</p>
             <div className="mt-4 space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Upload File
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Upload File</label>
               <input
                 type="file"
                 accept="image/*,video/*"
@@ -133,11 +124,13 @@ const CreatePost = () => {
               />
               {imageurl && (
                 <div className="mt-4">
-                  <p className="text-gray-700">Preview:</p>
-                  <img
+                  <Image
                     src={imageurl}
                     alt="Uploaded Preview"
                     className="mt-2 max-w-full h-auto border rounded-md"
+                    layout="responsive"
+                    width={700}
+                    height={475}
                   />
                 </div>
               )}

@@ -9,7 +9,8 @@ router.get("/get", UserController.check);
 router.post("/add_user",UserController.add_user);
 //@ts-ignore
 router.post("/create_post", UserController.add_post);
-
+//@ts-ignore
+router.get('/get_all_post', UserController.get_all_posts);
 const MODULE = {
   BASE_ROUTE,
   router

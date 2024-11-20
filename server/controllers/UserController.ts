@@ -3,6 +3,7 @@ dotenv.config();
 import express, { NextFunction, Request, Response } from "express";
 import { pool } from '../config/config';
 import {userQueries} from '../queries' 
+import { Client } from 'pg';
 
 
 export const check = async (req:Request, res: Response) => {
@@ -53,10 +54,29 @@ const add_post = async(req:Request, res:Response) =>{
   }
 }
 
+const get_all_posts = async (req:Request, res: Response,) => {
+  const client = await pool.connect();
+  try {
+    const { rows, rowCount } = await client.query(userQueries.get_all_posts,[]);
 
+    if (rowCount === 0) {
+      return res.status(404).json({ statusCode: 404, msg: "Post not found" });
+    }
+    else{
+    console.log(rows);
+    return res.status(200).json({ statusCode: 200, msg: "Post found", post: rows });
+    }
+    } catch (err) {
+    console.error("Error getting post:", err);
+    return res.status(500).json({ statusCode: 500, msg: "Internal server error" });
+  } finally {
+    client.release();
+  }
+};
 const MODULE ={
   check,
   add_user,
   add_post,
+  get_all_posts
 }
 export default MODULE;

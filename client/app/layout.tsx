@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { SessionProvider } from "next-auth/react"; // Import SessionProvider
 import "./globals.css";
 import Navbar from "./components/Navabar";
 
@@ -56,7 +57,7 @@ const workSans = localFont({
 
 export const metadata: Metadata = {
   title: "Open Source Hub",
-  description: "Pitch, Open and Collobarate",
+  description: "Pitch, Open and Collaborate",
 };
 
 export default function RootLayout({
@@ -67,8 +68,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={workSans.variable}>
-        <Navbar />
-        {children}
+        <SessionProvider> {/* Wrap the entire application */}
+          <Navbar />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
