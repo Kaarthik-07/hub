@@ -95,7 +95,9 @@ const Post = () => {
             </div>
 
             <Link href={`/startup/${post.post_id}`}>
-              <p className="opensource-card_desc">{post.content}</p>
+              <p className="opensource-card_desc" 
+              dangerouslySetInnerHTML={{ __html: post.content }}>
+               </p>
               {post.imageurl ? (
                 <Image
                   src={post.imageurl}

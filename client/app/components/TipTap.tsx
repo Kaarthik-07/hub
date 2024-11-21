@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useEditor, type Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { FileCode } from "lucide-react";
-// import Underline from "@tiptap/extension-underline";
 
 type TextEditorProps = {
   onChange: (content: string) => void;
@@ -19,12 +18,18 @@ export const Menubar = ({ editor }: { editor: Editor | null }) => {
     <div className="flex flex-wrap gap-5 mt-5">
       <Button
         type="button"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        onClick={() => editor.chain().focus().toggleHeading({ level:2 }).run()}
         variant={
           editor.isActive("heading", { level: 1 }) ? "default" : "secondary"
         }
       >
         H1
+      </Button>
+      <Button
+        onClick={() => editor.chain().focus().setCodeBlock().run()}
+        disabled={editor.isActive("codeBlock")}
+      >
+        <FileCode /> Code Block
       </Button>
       <Button
         type="button"

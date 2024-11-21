@@ -2,8 +2,8 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import TipTapEditor from "../components/TipTap";
-import { Text, Video } from "lucide-react"; // Adjust imports for your icons
-import Image from "next/image"; // For handling image previews
+import { Text, Video } from "lucide-react"; 
+import Image from "next/image"; 
 import { useSession } from "next-auth/react";
 
 const CreatePost = () => {
@@ -12,9 +12,15 @@ const CreatePost = () => {
   const [imageurl, setImageUrl] = useState<string | null>(null);
   const [content, setContent] = useState(""); // State to store the content from TipTap editor
 
-  const { register, handleSubmit, formState: { isSubmitting }, setValue } = useForm();
+  const { register, handleSubmit, formState: { isSubmitting }, setValue } = useForm<FormValues>();
 
-  const onSubmit = async (values: any) => {
+  interface FormValues {
+    title: string;
+    tags: string;
+    content: string;
+  }
+
+  const onSubmit = async (values: FormValues) => {
     const postData = {
       ...values,
       user_id: session?.user?.name,
@@ -38,9 +44,8 @@ const CreatePost = () => {
     }
   };
 
-  // Handle TipTapEditor onChange
   const handleEditorChange = (newContent: string) => {
-    setContent(newContent); // Update content state with the editor content
+    setContent(newContent); 
     setValue("content", newContent); 
     console.log(newContent)
   };
