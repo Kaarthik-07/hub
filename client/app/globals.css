@@ -140,9 +140,10 @@
     }
 
     .card_grid {
-        @apply grid md:grid-cols-3 sm:grid-cols-2 gap-14;
-        width: 100%;
+        @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-screen-2xl mx-auto w-full px-4;
       }
+      
+      
       
 
     .card_grid-sm {
